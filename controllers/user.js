@@ -82,3 +82,68 @@ module.exports.getUserDetails = async (params) => {
     return error;
   }
 };
+
+module.exports.addTransaction = async (params) => {
+  try {
+    const user = await User.findOne({ _id: params.id });
+    if (user != null) {
+      user.transactions.unshift(params.transaction);
+
+      if (params.transaction.type == 'payment') {
+        user.balance = user.balance - params.transaction.amount;
+      } else {
+        user.balance += params.transaction.amount;
+      }
+    } else {
+      return false;
+    }
+    return user.save().then((updated, err) => {
+      return err ? err : updated;
+    });
+  } catch (err) {
+    return err;
+  }
+};
+
+module.exports.updateTransaction = async (params) => {
+  try {
+    const user = await User.findByIdAndUpdate(params.userId);
+
+    let x = [];
+    if (user != null) {
+      user.transactions.forEach((transaction, index) => {
+        if (transaction._id == params.transactionId) {
+          user.transactions[index] = params.transactionUpdate;
+        }
+      });
+    } else {
+      return false;
+    }
+
+    return user.save().then((updated, err) => {
+      return err ? err : updated;
+    });
+  } catch (error) {
+    return error;
+  }
+};
+
+module.exports.deleteTransaction = async (params) => {
+  try {
+    const user = await User.findOneAndUpdate(
+      { _id: params.userId },
+      {
+        $pull: {
+          transactions: { _id: params.transactionId },
+        },
+      }
+    );
+
+    return user.save().then((updated, err) => {
+      return err ? err : updated;
+    });
+  } catch (error) {
+    console.error(error);
+    return error;
+  }
+};

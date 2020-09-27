@@ -33,10 +33,30 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  transactions: {
-    type: Array,
-    required: true,
-  },
+  transactions: [
+    {
+      type: {
+        type: String,
+        required: [true, 'transaction type required'],
+      },
+      description: {
+        type: String,
+        required: true,
+      },
+      amount: {
+        type: Number,
+        required: true,
+      },
+      datePosted: {
+        type: Date,
+        default: new Date(),
+      },
+      isDone: {
+        type: Boolean,
+        default: true,
+      },
+    },
+  ],
 });
 
 module.exports = mongoose.model('User', userSchema);

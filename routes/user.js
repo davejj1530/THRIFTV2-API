@@ -28,4 +28,40 @@ router.get('/userdetails', auth.verify, (req, res) => {
   });
 });
 
+router.post('/transaction', auth.verify, (req, res) => {
+  const data = {
+    id: auth.decode(req.headers.authorization).id,
+    transaction: req.body,
+  };
+
+  UserController.addTransaction(data).then((result) => {
+    res.send(result);
+  });
+});
+
+router.put('/:transactionId', auth.verify, (req, res) => {
+  const data = {
+    userId: auth.decode(req.headers.authorization).id,
+    transactionId: req.params.transactionId,
+    transactionUpdate: {
+      type: 'Income',
+      description: 'testing updates',
+      amount: 1000,
+    },
+  };
+
+  UserController.updateTransaction(data).then((result) => {
+    res.send(result);
+  });
+});
+router.delete('/:transactionId', auth.verify, (req, res) => {
+  const data = {
+    userId: auth.decode(req.headers.authorization).id,
+    transactionId: req.params.transactionId,
+  };
+
+  UserController.deleteTransaction(data).then((result) => {
+    res.send(result);
+  });
+});
 module.exports = router;
