@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const auth = require('../auth');
+const { cloudinary } = require('../utils/cloudinary');
 module.exports.handleRegistration = async (params) => {
   try {
     const {
@@ -12,6 +13,7 @@ module.exports.handleRegistration = async (params) => {
       balance,
       currency,
       transactions,
+      url,
     } = params;
     console.log(password);
     const salt = await bcrypt.genSalt();
@@ -29,6 +31,7 @@ module.exports.handleRegistration = async (params) => {
         transactions,
         balance,
         currency,
+        url,
       });
       return {
         success: true,
@@ -146,5 +149,18 @@ module.exports.deleteTransaction = async (params) => {
   } catch (error) {
     console.error(error);
     return error;
+  }
+};
+
+module.exports.upload = async (params) => {
+  try {
+    const picture = params.picture;
+    console.log(picture);
+    const uploadedResponse = await cloudinary.uploader.upload(picture);
+    console.log(uploadedResponse);
+    return uploadedResponse;
+  } catch (error) {
+    console.error(error);
+    return false;
   }
 };
