@@ -74,12 +74,12 @@ module.exports.getUserDetails = async (params) => {
     const userDetails = await User.findOne({ _id: params.id });
 
     if (userDetails !== null) {
-      return userDetails;
+      return { auth: 'success', ...userDetails };
     } else {
-      return 'Network Error';
+      return { auth: 'failed' };
     }
   } catch (error) {
-    return error;
+    return { auth: 'failed' };
   }
 };
 
