@@ -13,6 +13,7 @@ module.exports.handleRegistration = async (params) => {
       currency,
       transactions,
     } = params;
+    console.log(password);
     const salt = await bcrypt.genSalt();
     const securedPassword = await bcrypt.hash(password, salt);
     const existingUser = await User.findOne({ email: email });
