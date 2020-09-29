@@ -37,6 +37,7 @@ router.post('/transaction', auth.verify, (req, res) => {
   };
 
   UserController.addTransaction(data).then((result) => {
+    console.log(result);
     res.send(result);
   });
 });
@@ -76,3 +77,9 @@ router.post('/upload', (req, res) => {
   });
 });
 module.exports = router;
+
+router.post('/verify-google-id-token', (req, res) => {
+  UserController.verifyGoogleTokenId(req.body.tokenId).then((data) => {
+    res.send(data);
+  });
+});

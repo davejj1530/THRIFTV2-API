@@ -2,6 +2,8 @@ const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const auth = require('../auth');
 const { cloudinary } = require('../utils/cloudinary');
+const { OAuth2Client } = require('google-auth-library');
+const clientId = process.env.CLIENT_ID;
 module.exports.handleRegistration = async (params) => {
   try {
     const {
@@ -89,6 +91,7 @@ module.exports.getUserDetails = async (params) => {
 
 module.exports.addTransaction = async (params) => {
   try {
+    console.log(params.transaction);
     const user = await User.findOne({ _id: params.id });
     if (user != null) {
       user.transactions.unshift(params.transaction);
@@ -105,7 +108,7 @@ module.exports.addTransaction = async (params) => {
       return err ? err : updated;
     });
   } catch (err) {
-    return err;
+    return 'something went wrong';
   }
 };
 
@@ -155,12 +158,57 @@ module.exports.deleteTransaction = async (params) => {
 module.exports.upload = async (params) => {
   try {
     const picture = params.picture;
-    console.log(picture);
+
     const uploadedResponse = await cloudinary.uploader.upload(picture);
-    console.log(uploadedResponse);
+
     return uploadedResponse;
   } catch (error) {
-    console.error(error);
     return false;
+  }
+};
+
+module.exports.verifyGoogleTokenId = async (params) => {
+  const client = new OAuth2Client(clientId);
+  const data = await client.verifyIdToken({
+    idToken: params,
+    audience: clientId,
+  });
+  console.log(data);
+  if (data.payload.email_verified === true) {
+    const user = await User.findOne({ email: data.payload.email }).exec();
+
+    if (user !== null) {
+      if (user.loginType === 'google') {
+        return {
+          accessToken: auth.createAccessToken(user.toObject()),
+        };
+      } else {
+        return { error: 'login-type-error' };
+      }
+    } else {
+      const newUser = new User({
+        firstName: data.payload.given_name,
+        lastName: data.payload.family_name,
+        email: data.payload.email,
+        password: clientId,
+        balance: 0,
+        url: data.payload.picture,
+        currency: 'PHP',
+        transactions: {
+          type: 'INVESTMENT',
+          description: 'WELCOME TO THRIFT!',
+          amount: 0,
+        },
+        loginType: 'google',
+      });
+
+      return newUser.save().then((user, err) => {
+        return {
+          accessToken: auth.createAccessToken(user.toObject()),
+        };
+      });
+    }
+  } else {
+    return { error: 'google-auth-error' };
   }
 };

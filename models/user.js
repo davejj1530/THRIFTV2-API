@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
   },
   phoneNumber: {
     type: String,
-    required: true,
+    default: '09151015662',
   },
   password: {
     type: String,
@@ -36,6 +36,10 @@ const userSchema = new mongoose.Schema({
   url: {
     type: String,
     default: '',
+  },
+  loginType: {
+    type: String,
+    default: 'original',
   },
   transactions: [
     {
@@ -58,6 +62,9 @@ const userSchema = new mongoose.Schema({
       isDone: {
         type: Boolean,
         default: true,
+      },
+      balance: {
+        type: Number,
       },
     },
   ],
