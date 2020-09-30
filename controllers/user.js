@@ -198,6 +198,7 @@ module.exports.verifyGoogleTokenId = async (params) => {
           type: 'INVESTMENT',
           description: 'WELCOME TO THRIFT!',
           amount: 0,
+          balance: 0,
         },
         loginType: 'google',
       });
