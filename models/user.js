@@ -41,6 +41,16 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'original',
   },
+  categories: {
+    income: {
+      type: Array,
+      default: ['Salary', 'Business profits', 'Property Income'],
+    },
+    payment: {
+      type: Array,
+      default: ['Utilities', 'Leisures', 'Food', 'Debt', 'Taxes'],
+    },
+  },
   transactions: [
     {
       type: {
@@ -65,6 +75,9 @@ const userSchema = new mongoose.Schema({
       },
       balance: {
         type: Number,
+      },
+      category: {
+        type: String,
       },
     },
   ],

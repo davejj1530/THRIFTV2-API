@@ -16,6 +16,7 @@ module.exports.handleRegistration = async (params) => {
       currency,
       transactions,
       url,
+      categories,
     } = params;
     console.log(password);
     const salt = await bcrypt.genSalt();
