@@ -42,22 +42,18 @@ router.post('/transaction', auth.verify, (req, res) => {
   });
 });
 
-router.put('/:transactionId', auth.verify, (req, res) => {
+router.put('/transaction/:transactionId', auth.verify, (req, res) => {
   const data = {
     userId: auth.decode(req.headers.authorization).id,
     transactionId: req.params.transactionId,
-    transactionUpdate: {
-      type: 'Income',
-      description: 'testing updates',
-      amount: 1000,
-    },
+    transactionUpdate: req.body.transactionUpdate,
   };
 
   UserController.updateTransaction(data).then((result) => {
     res.send(result);
   });
 });
-router.delete('/:transactionId', auth.verify, (req, res) => {
+router.delete('/transaction/:transactionId', auth.verify, (req, res) => {
   const data = {
     userId: auth.decode(req.headers.authorization).id,
     transactionId: req.params.transactionId,
