@@ -1,8 +1,8 @@
-const User = require('../models/user');
-const bcrypt = require('bcrypt');
-const auth = require('../auth');
-const { cloudinary } = require('../utils/cloudinary');
-const { OAuth2Client } = require('google-auth-library');
+const User = require("../models/user");
+const bcrypt = require("bcrypt");
+const auth = require("../auth");
+const { cloudinary } = require("../utils/cloudinary");
+const { OAuth2Client } = require("google-auth-library");
 const clientId = process.env.CLIENT_ID;
 module.exports.handleRegistration = async (params) => {
   try {
@@ -23,7 +23,7 @@ module.exports.handleRegistration = async (params) => {
     const securedPassword = await bcrypt.hash(password, salt);
     const existingUser = await User.findOne({ email: email });
     if (existingUser !== null) {
-      return { success: false, data: 'email already exists' };
+      return { success: false, data: "email already exists" };
     } else {
       const registerUser = await User.create({
         firstName,
@@ -62,13 +62,13 @@ module.exports.handleLogin = async (params) => {
       } else {
         return {
           success: false,
-          data: 'invalid user credentials',
+          data: "invalid user credentials",
         };
       }
     } else {
       return {
         success: false,
-        data: 'invalid user credentials',
+        data: "invalid user credentials",
       };
     }
   } catch (error) {
@@ -81,12 +81,12 @@ module.exports.getUserDetails = async (params) => {
     const userDetails = await User.findOne({ _id: params.id });
 
     if (userDetails !== null) {
-      return { auth: 'success', ...userDetails };
+      return { auth: "success", ...userDetails };
     } else {
-      return { auth: 'failed' };
+      return { auth: "failed" };
     }
   } catch (error) {
-    return { auth: 'failed' };
+    return { auth: "failed" };
   }
 };
 
@@ -97,7 +97,7 @@ module.exports.addTransaction = async (params) => {
     if (user != null) {
       user.transactions.unshift(params.transaction);
 
-      if (params.transaction.type == 'payment') {
+      if (params.transaction.type == "payment") {
         user.balance = user.balance - params.transaction.amount;
       } else {
         user.balance += params.transaction.amount;
@@ -109,7 +109,7 @@ module.exports.addTransaction = async (params) => {
       return err ? err : updated;
     });
   } catch (err) {
-    return 'something went wrong';
+    return "something went wrong";
   }
 };
 
@@ -156,6 +156,18 @@ module.exports.deleteTransaction = async (params) => {
   }
 };
 
+module.exports.handleUpdate = async (params) => {
+  try {
+    const user = await User.findByIdAndUpdate(params.id, params.update);
+
+    return user.save().then((updated, err) => {
+      return err ? err : true;
+    });
+  } catch (error) {
+    return false;
+  }
+};
+
 module.exports.upload = async (params) => {
   try {
     const picture = params.picture;
@@ -179,12 +191,12 @@ module.exports.verifyGoogleTokenId = async (params) => {
     const user = await User.findOne({ email: data.payload.email }).exec();
 
     if (user !== null) {
-      if (user.loginType === 'google') {
+      if (user.loginType === "google") {
         return {
           accessToken: auth.createAccessToken(user.toObject()),
         };
       } else {
-        return { error: 'login-type-error' };
+        return { error: "login-type-error" };
       }
     } else {
       const newUser = new User({
@@ -194,14 +206,14 @@ module.exports.verifyGoogleTokenId = async (params) => {
         password: clientId,
         balance: 0,
         url: data.payload.picture,
-        currency: 'PHP',
+        currency: "PHP",
         transactions: {
-          type: 'INVESTMENT',
-          description: 'WELCOME TO THRIFT!',
+          type: "INVESTMENT",
+          description: "WELCOME TO THRIFT!",
           amount: 0,
           balance: 0,
         },
-        loginType: 'google',
+        loginType: "google",
       });
 
       return newUser.save().then((user, err) => {
@@ -211,6 +223,6 @@ module.exports.verifyGoogleTokenId = async (params) => {
       });
     }
   } else {
-    return { error: 'google-auth-error' };
+    return { error: "google-auth-error" };
   }
 };
