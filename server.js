@@ -9,6 +9,11 @@ const nodemailer = require('nodemailer');
 
 const app = express();
 
+const corsOptions = {
+  origin: process.env.CLIENT_URL,
+  optionsSuccessStatus: 200,
+};
+
 app.use(express.json({ limit: '50mb', extended: true }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cors());
@@ -81,7 +86,7 @@ const PORT = process.env.PORT || 4000;
 app.get('/', (req, res) => {
   res.send('HELLO FROM NODE');
 });
-app.use('/api/users', userRoutes);
+app.use('/api/users', cors(corsOptions), userRoutes);
 
 app.listen(PORT, () => {
   console.log(`server is running at port ${PORT}`);
