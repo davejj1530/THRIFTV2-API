@@ -1,8 +1,8 @@
-const User = require("../models/user");
-const bcrypt = require("bcrypt");
-const auth = require("../auth");
-const { cloudinary } = require("../utils/cloudinary");
-const { OAuth2Client } = require("google-auth-library");
+const User = require('../models/user');
+const bcrypt = require('bcrypt');
+const auth = require('../auth');
+const { cloudinary } = require('../utils/cloudinary');
+const { OAuth2Client } = require('google-auth-library');
 const clientId = process.env.CLIENT_ID;
 module.exports.handleRegistration = async (params) => {
   try {
@@ -23,7 +23,7 @@ module.exports.handleRegistration = async (params) => {
     const securedPassword = await bcrypt.hash(password, salt);
     const existingUser = await User.findOne({ email: email });
     if (existingUser !== null) {
-      return { success: false, data: "email already exists" };
+      return { success: false, data: 'email already exists' };
     } else {
       const registerUser = await User.create({
         firstName,
@@ -46,6 +46,33 @@ module.exports.handleRegistration = async (params) => {
   }
 };
 
+module.exports.handleChangePassword = async (params) => {
+  try {
+    const { oldPassword, newPassword, id } = params;
+
+    const user = await User.findOne({ _id: id });
+
+    if (user) {
+      const match = await bcrypt.compare(oldPassword, user.password);
+      if (match) {
+        const salt = await bcrypt.genSalt();
+        const securedPassword = await bcrypt.hash(newPassword, salt);
+        user.password = securedPassword;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+
+    return user.save().then((updated, err) => {
+      return err ? false : true;
+    });
+  } catch (error) {
+    return false;
+  }
+};
+
 module.exports.handleLogin = async (params) => {
   try {
     const { email, password } = params;
@@ -62,13 +89,13 @@ module.exports.handleLogin = async (params) => {
       } else {
         return {
           success: false,
-          data: "invalid user credentials",
+          data: 'invalid user credentials',
         };
       }
     } else {
       return {
         success: false,
-        data: "invalid user credentials",
+        data: 'invalid user credentials',
       };
     }
   } catch (error) {
@@ -81,23 +108,23 @@ module.exports.getUserDetails = async (params) => {
     const userDetails = await User.findOne({ _id: params.id });
 
     if (userDetails !== null) {
-      return { auth: "success", ...userDetails };
+      return { auth: 'success', ...userDetails };
     } else {
-      return { auth: "failed" };
+      return { auth: 'failed' };
     }
   } catch (error) {
-    return { auth: "failed" };
+    return { auth: 'failed' };
   }
 };
 
 module.exports.addTransaction = async (params) => {
   try {
-    console.log(params.transaction);
+    console.log(params.transaction, 'accessing');
     const user = await User.findOne({ _id: params.id });
     if (user != null) {
       user.transactions.unshift(params.transaction);
 
-      if (params.transaction.type == "payment") {
+      if (params.transaction.type == 'payment') {
         user.balance = user.balance - params.transaction.amount;
       } else {
         user.balance += params.transaction.amount;
@@ -109,7 +136,7 @@ module.exports.addTransaction = async (params) => {
       return err ? err : updated;
     });
   } catch (err) {
-    return "something went wrong";
+    return 'something went wrong';
   }
 };
 
@@ -191,12 +218,12 @@ module.exports.verifyGoogleTokenId = async (params) => {
     const user = await User.findOne({ email: data.payload.email }).exec();
 
     if (user !== null) {
-      if (user.loginType === "google") {
+      if (user.loginType === 'google') {
         return {
           accessToken: auth.createAccessToken(user.toObject()),
         };
       } else {
-        return { error: "login-type-error" };
+        return { error: 'login-type-error' };
       }
     } else {
       const newUser = new User({
@@ -206,14 +233,14 @@ module.exports.verifyGoogleTokenId = async (params) => {
         password: clientId,
         balance: 0,
         url: data.payload.picture,
-        currency: "PHP",
+        currency: 'PHP',
         transactions: {
-          type: "INVESTMENT",
-          description: "WELCOME TO THRIFT!",
+          type: 'INVESTMENT',
+          description: 'WELCOME TO THRIFT!',
           amount: 0,
           balance: 0,
         },
-        loginType: "google",
+        loginType: 'google',
       });
 
       return newUser.save().then((user, err) => {
@@ -223,6 +250,36 @@ module.exports.verifyGoogleTokenId = async (params) => {
       });
     }
   } else {
-    return { error: "google-auth-error" };
+    return { error: 'google-auth-error' };
+  }
+};
+
+module.exports.importCategory = async (params) => {
+  try {
+    const { categoryType, newCategory, id } = params;
+    const user = await User.findOne({ _id: id });
+    if (user) {
+      if (categoryType == 'payment') {
+        if (!user.categories.payment.includes(newCategory)) {
+          user.categories.payment.push(newCategory);
+        } else {
+          return false;
+        }
+      } else {
+        if (!user.categories.income.includes(newCategory)) {
+          user.categories.income.push(newCategory);
+        } else {
+          return false;
+        }
+      }
+    } else {
+      return false;
+    }
+
+    return user.save().then((updated, err) => {
+      return err ? false : updated;
+    });
+  } catch (error) {
+    return false;
   }
 };
