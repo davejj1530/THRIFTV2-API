@@ -15,7 +15,7 @@ app.use(cors());
 
 const cron = require('node-cron');
 
-cron.schedule('1 45 * * * * ', async () => {
+cron.schedule('1 10 * * * * ', async () => {
   console.log('Job running on node-cron');
   let mustBeEmailed = [];
   const users = await User.find();
@@ -24,8 +24,8 @@ cron.schedule('1 45 * * * * ', async () => {
     user.transactions.forEach((transaction) => {
       if (
         !transaction.isDone &&
-        moment(transaction.datePosted).format('LL') ==
-          moment().add(1, 'days').format('LL')
+        moment(transaction.datePosted).add(1, 'days').format('LL') ==
+          moment().add(2, 'days').format('LL')
       ) {
         mustBeEmailed.push({
           email: user.email,
