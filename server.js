@@ -15,7 +15,7 @@ app.use(cors());
 
 const cron = require('node-cron');
 
-cron.schedule('1 10 * * * * ', async () => {
+cron.schedule('1 15 * * * * ', async () => {
   console.log('Job running on node-cron');
   let mustBeEmailed = [];
   const users = await User.find();
@@ -33,7 +33,9 @@ cron.schedule('1 10 * * * * ', async () => {
           transactionName: transaction.description,
           transactionAmount: transaction.amount,
           transactionType: transaction.type,
-          transactionDate: moment(transaction.datePosted).format('LL'),
+          transactionDate: moment(transaction.datePosted)
+            .add(1, 'days')
+            .format('LL'),
         });
       }
     });
