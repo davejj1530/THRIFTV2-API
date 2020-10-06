@@ -13,10 +13,9 @@ const corsOptions = {
   origin: process.env.CLIENT_URL,
   optionsSuccessStatus: 200,
 };
-// process.env.CLIENT_URL,
+
 app.use(express.json({ limit: '50mb', extended: true }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
-app.use(cors());
 
 const cron = require('node-cron');
 
