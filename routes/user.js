@@ -113,3 +113,21 @@ router.post('/verify-google-id-token', (req, res) => {
     res.send(data);
   });
 });
+
+router.post('/forgot-password', (req, res) => {
+  UserController.forgotPassword(req.body).then((data) => {
+    res.send(data);
+  });
+});
+
+router.post('/check-hashes', (req, res) => {
+  UserController.checkHashes(req.body).then((data) => {
+    res.send(data);
+  });
+});
+
+router.put('/reset-password', (req, res) => {
+  UserController.resetPassword(req.body).then((data) => {
+    res.send(data);
+  });
+});

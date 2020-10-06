@@ -1,6 +1,8 @@
 const User = require('../models/user');
+const Hash = require('../models/hash');
 const bcrypt = require('bcrypt');
 const auth = require('../auth');
+const nodemailer = require('nodemailer');
 const { cloudinary } = require('../utils/cloudinary');
 const { OAuth2Client } = require('google-auth-library');
 const clientId = process.env.CLIENT_ID;
@@ -280,6 +282,100 @@ module.exports.importCategory = async (params) => {
       return err ? false : updated;
     });
   } catch (error) {
+    return false;
+  }
+};
+
+module.exports.forgotPassword = async (params) => {
+  try {
+    const user = await User.findOne({ email: params.email });
+    const isAlreadyHashed = await Hash.findOne({ email: params.email });
+
+    if (user && !isAlreadyHashed) {
+      if (user.loginType != 'google') {
+        const key = Math.floor(Math.random() * 1000000);
+        const hashedUser = new Hash({
+          id: user._id,
+          key: key,
+          email: params.email,
+          createAt: Date.now(),
+        });
+        let transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL,
+            pass: process.env.PASS,
+          },
+        });
+        let mailOptions = {
+          from: process.env.EMAIL,
+          to: user.email,
+          subject: 'Password Reset',
+          html: `<h3> Hello ${user.firstName}, This is your Thrift verification code.</h3>
+        <h1>${key}</h1>
+        <p>Go to this <a href=${process.env.CLIENT_URL}forgot-password/${user._id}> website </a>
+        <p>Please take note that this link expire in 5 mins!</p>
+        `,
+        };
+        transporter.sendMail(mailOptions, (err, info) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(info);
+          }
+        });
+        return hashedUser.save().then((updated, err) => {
+          return err ? false : true;
+        });
+      } else {
+        return 'google';
+      }
+    } else if (user && isAlreadyHashed) {
+      return 'still';
+    } else {
+      return false;
+    }
+  } catch (err) {
+    return false;
+  }
+};
+
+module.exports.checkHashes = async (params) => {
+  try {
+    const hash = await Hash.findOne({ id: params.id });
+    if (hash) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (err) {
+    return false;
+  }
+};
+
+module.exports.resetPassword = async (params) => {
+  try {
+    const hash = await Hash.findOne({ id: params.id });
+
+    if (hash) {
+      if (hash.key == params.key) {
+        const user = await User.findOne({ _id: params.id });
+        if (user) {
+          const salt = await bcrypt.genSalt();
+          const securedPassword = await bcrypt.hash(params.password, salt);
+          user.password = securedPassword;
+
+          return user.save().then((updated, err) => {
+            return err ? false : true;
+          });
+        } else {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
+  } catch (err) {
     return false;
   }
 };
