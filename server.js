@@ -20,7 +20,7 @@ app.use(cors());
 
 const cron = require('node-cron');
 
-cron.schedule('1 25 * * * * ', async () => {
+cron.schedule('1 32 * * * * ', async () => {
   console.log('Job running on node-cron');
   let mustBeEmailed = [];
   const users = await User.find();
