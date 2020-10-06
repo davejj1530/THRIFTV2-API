@@ -313,8 +313,8 @@ module.exports.forgotPassword = async (params) => {
           subject: 'Password Reset',
           html: `<h3> Hello ${user.firstName}, This is your Thrift verification code.</h3>
         <h1>${key}</h1>
-        <p>Go to this <a href=${process.env.CLIENT_URL}forgot-password/${user._id}> website </a>
-        <p>Please take note that this link expire in 5 mins!</p>
+        <h3>Go to this <a href=${process.env.CLIENT_URL}/forgot-password/${user._id}> website </h3>
+        <h6>Please take note that this link expire in 5 mins!</h6>
         `,
         };
         transporter.sendMail(mailOptions, (err, info) => {
