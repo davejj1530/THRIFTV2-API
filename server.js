@@ -20,7 +20,7 @@ app.use(cors());
 
 const cron = require('node-cron');
 
-cron.schedule('1 32 * * * * ', async () => {
+cron.schedule('1 1 6 * * * ', async () => {
   console.log('Job running on node-cron');
   let mustBeEmailed = [];
   const users = await User.find();
@@ -28,9 +28,11 @@ cron.schedule('1 32 * * * * ', async () => {
   users.forEach((user) => {
     user.transactions.forEach((transaction) => {
       if (
-        !transaction.isDone &&
-        moment(transaction.datePosted).add(1, 'days').format('LL') ==
-          moment().add(2, 'days').format('LL')
+        (!transaction.isDone &&
+          moment(transaction.datePosted).utc().format('LL') ==
+            moment().utc().add(1, 'days').format('LL')) ||
+        moment(transaction.datePosted).utc().format('LL') ==
+          moment().utc().add(2, 'days').format('LL')
       ) {
         mustBeEmailed.push({
           email: user.email,
@@ -38,9 +40,7 @@ cron.schedule('1 32 * * * * ', async () => {
           transactionName: transaction.description,
           transactionAmount: transaction.amount,
           transactionType: transaction.type,
-          transactionDate: moment(transaction.datePosted)
-            .add(1, 'days')
-            .format('LL'),
+          transactionDate: moment(transaction.datePosted).utc().format('LL'),
         });
       }
     });
@@ -75,9 +75,6 @@ cron.schedule('1 32 * * * * ', async () => {
       });
     });
   }
-
-  console.log(mustBeEmailed);
-  console.log(mustBeEmailed.length);
 });
 
 connectDB();
