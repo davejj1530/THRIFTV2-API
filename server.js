@@ -8,9 +8,9 @@ const User = require('./models/user');
 const nodemailer = require('nodemailer');
 
 const app = express();
-
+console.log(process.env.CLIENT_URL.split(' '));
 const corsOptions = {
-  origin: process.env.CLIENT_URL,
+  origin: process.env.CLIENT_URL.split(' '),
   optionsSuccessStatus: 200,
 };
 
