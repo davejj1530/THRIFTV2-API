@@ -87,5 +87,3 @@ app.use('/api/users', cors(corsOptions), userRoutes);
 app.listen(PORT, () => {
   console.log(`server is running at port ${PORT}`);
 });
-
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
