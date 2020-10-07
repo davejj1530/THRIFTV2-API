@@ -286,7 +286,7 @@ module.exports.importCategory = async (params) => {
   }
 };
 
-module.exports.forgotPassword = async (params) => {
+module.exports.forgotPassword = async (params, host) => {
   try {
     const user = await User.findOne({ email: params.email });
     const isAlreadyHashed = await Hash.findOne({ email: params.email });
@@ -313,7 +313,7 @@ module.exports.forgotPassword = async (params) => {
           subject: 'Password Reset',
           html: `<h3> Hello ${user.firstName}, This is your Thrift verification code.</h3>
         <h1>${key}</h1>
-        <h3>Go to this <a href=${process.env.CLIENT_URL}/forgot-password/${user._id}> website </h3>
+        <h3>Go to this <a href=https://${host}/forgot-password/${user._id}> website </h3>
         <h6>Please take note that this link expire in 5 mins!</h6>
         `,
         };
