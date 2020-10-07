@@ -19,7 +19,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 const cron = require('node-cron');
 
-cron.schedule('1 41 10 * * * ', async () => {
+cron.schedule('1 30 12 * * * ', async () => {
   console.log('Job running on node-cron');
   let mustBeEmailed = [];
   const users = await User.find();

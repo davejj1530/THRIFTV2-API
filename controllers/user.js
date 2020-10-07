@@ -263,13 +263,13 @@ module.exports.importCategory = async (params) => {
     if (user) {
       if (categoryType == 'payment') {
         if (!user.categories.payment.includes(newCategory)) {
-          user.categories.payment.push(newCategory);
+          user.categories.payment.unshift(newCategory);
         } else {
           return false;
         }
       } else {
         if (!user.categories.income.includes(newCategory)) {
-          user.categories.income.push(newCategory);
+          user.categories.income.unshift(newCategory);
         } else {
           return false;
         }
