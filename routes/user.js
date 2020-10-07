@@ -115,7 +115,7 @@ router.post('/verify-google-id-token', (req, res) => {
 });
 
 router.post('/forgot-password', (req, res) => {
-  UserController.forgotPassword(req.body, req.headers.host).then((data) => {
+  UserController.forgotPassword(req.body, req.headers.origin).then((data) => {
     res.send(data);
   });
 });
