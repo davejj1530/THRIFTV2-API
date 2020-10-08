@@ -314,7 +314,7 @@ module.exports.forgotPassword = async (params, origin) => {
           html: `<h3> Hello ${user.firstName}, This is your Thrift verification code.</h3>
         <h1>${key}</h1>
         <h3>Go to this <a href=${origin}/forgot-password/${user._id}> website </h3>
-        <h6>Please take note that this link expire in 5 mins!</h6>
+        <h3>Please take note that this link will expire in 5 mins!</h3>
         `,
         };
         transporter.sendMail(mailOptions, (err, info) => {
